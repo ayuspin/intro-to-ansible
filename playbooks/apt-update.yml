@@ -1,0 +1,5 @@
+- hosts: webservers:loadbalancers
+  become: true
+  tasks:
+    - name: Updating apt packages
+      apt: name=* state=latest

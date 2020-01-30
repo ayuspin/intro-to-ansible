@@ -1,0 +1,12 @@
+- hosts: webservers:loadbalancers
+  become: true
+  tasks:
+    - name: Check status of apache2
+      command: service apache2 status
+      args:
+        warn: no
+      changed_when: false
+
+    - name: This is not fail
+      command: /bin/false
+      ignore_errors: yes

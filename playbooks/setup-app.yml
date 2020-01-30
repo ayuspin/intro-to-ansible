@@ -1,0 +1,52 @@
+- hosts: webservers
+  become: true
+
+  vars:
+    path_to_app: "/var/www/html"
+
+  vars_files:
+    - ../vars/secret-varibles.yml
+
+  vars_prompt:
+    - name: "upload_var"
+      prompt: "Upload the index.php file"
+    - name: "create_var"
+      prompt: "Create info.php page?"
+
+  tasks:
+    - name: Use secret password here
+      debug:
+        msg: "{{ secret_password }}"
+
+    - name: Upload app file
+      copy:
+        src: ../index.php
+        dest: "{{ path_to_app }}"
+        mode: 0755
+      when: upload_var == 'yes'
+      tags: upload
+
+    - name: Upload phpinfo file
+      copy:
+        src: ../phpinfo.php
+        dest: "{{ path_to_app }}"
+        mode: 0755
+
+    - name: Create simple info page
+      copy:
+        dest: "{{ path_to_app }}/info.php"
+        content: "<h1> Info about our webserver {{ ansible_hostname }} </h1>. Adding some changes."
+        mode: 0755
+      when: create_var == 'yes'
+      tags: create
+
+    - name: Configure php.ini
+      lineinfile:
+        path: /etc/php/7.3/apache2/php.ini
+        regexp: ^short_open_tag
+        line: 'short_open_tag=On'
+      notify: reload apache2
+
+  handlers:
+    - name: reload apache2
+      service: name=apache2 state=reloaded

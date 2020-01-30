@@ -1,0 +1,4 @@
+---
+# handlers file for roles/webservers
+- name: reload apache2
+  service: name=apache2 state=reloaded

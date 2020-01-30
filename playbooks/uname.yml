@@ -1,0 +1,4 @@
+- hosts: webservers:loadbalancers
+  tasks:
+    - name: Get OS type
+      shell: uname

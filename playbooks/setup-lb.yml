@@ -1,0 +1,25 @@
+- hosts: loadbalancers
+  become: true
+  tasks:
+    - name: Enabling modules
+      apache2_module:
+        state: present
+        name: "{{ item }}"
+      with_items:
+        - proxy
+        - proxy_http
+        - proxy_balancer
+        - lbmethod_byrequests
+
+    - name: Creating template
+      template:
+        src: ../config/lb-config.j2
+        dest: /etc/apache2/mods-available/proxy_balancer.conf
+        owner: root
+        group: root
+        mode: 644
+      notify: reload apache2
+
+  handlers:
+    - name: reload apache2
+      service: name=apache2 state=reloaded
